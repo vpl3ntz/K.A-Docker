@@ -1,0 +1,70 @@
+version: '3'
+services:
+  postgres:
+    container_name: postgres
+    image: postgres:bullseye
+    deploy:
+      resources:
+        limits:
+          memory: 1024M
+    restart: always
+    environment:
+      - POSTGRES_DB=kamailio
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - type: bind
+        source: .
+        target: /var/lib/postgresql/data
+
+  redis:
+    container_name: redis
+    image: redis:latest
+    deploy:
+      resources:
+        limits:
+          memory: 1024M
+
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4:latest
+    deploy:
+      resources:
+        limits:
+          memory: 1024M
+    restart: always
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=test@test.com
+      - PGADMIN_DEFAULT_USERNAME=postgres
+      - PGADMIN_DEFAULT_PASSWORD=postgres
+    ports:
+      - "8080:80"
+    hostname: pgadmin
+    depends_on:
+      - postgres
+
+  asterisk:
+    container_name: asterisk
+    build:
+      context: .
+      dockerfile: asterisk/dockerfile
+    image: bsf-asterisk
+    deploy:
+      resources:
+        limits:
+          memory: 1024M
+    ports:
+      - "5060:5060"
+
+  kamailio:
+    container_name: kamailio
+    build:
+      context: .
+      dockerfile: asterisk/dockerfile
+    image: bsf-kamailio
+    deploy:
+      resources:
+        limits:
+          memory: 1024M
+    ports:
+      - "5061:5061"

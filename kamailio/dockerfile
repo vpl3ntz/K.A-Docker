@@ -1,0 +1,4 @@
+FROM debian:bullseye
+ENTRYPOINT top -b
+
+RUN apt update && apt updagrade -y
